@@ -1,0 +1,25 @@
+docker --version
+    To check if docker is installed: 
+
+docker (and then press enter)
+    To get a list of all commands: 
+
+docker pull <image_name>
+    This command allows you to pull any image which is present in the official 
+    registry of docker, Docker hub. By default, it pulls the latest image, 
+    but you can also mention the version of the image. By default, :latest tag is added
+
+docker images
+    To list all the images in local
+
+docker pull <imageName>
+docker pull hello-world
+    To download a specific image (with default tag = :latest)
+
+OUTPUT:
+    Using default tag: latest
+    latest: Pulling from library/hello-world
+    17eec7bbc9d7: Pull complete
+    Digest: sha256:f7931603f70e13dbd844253370742c4fc4202d290c80442b2e68706d8f33ce26
+    Status: Downloaded newer image for hello-world:latest
+    docker.io/library/hello-world:latest
