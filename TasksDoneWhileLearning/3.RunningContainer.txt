@@ -31,3 +31,5 @@ root@25b599e0472c:/# exit
 exit
 
 C:\Users>
+
+exit -> exits the container
