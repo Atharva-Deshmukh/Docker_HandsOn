@@ -1,0 +1,33 @@
+docker run <image_name>
+
+It checks if the image exists in local, if not, it pulls the latest version and runs it
+
+C:\Users>docker run ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+20043066d3d5: Pull complete
+Digest: sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+Status: Downloaded newer image for ubuntu:latest
+
+Docker gives random names to the containers, gives them unique ids.
+
+Now, if we want to run container interactively, i.e. to access the container's terminal
+command for this => docker run -it <image_name>   
+it => interactively
+
+Like, our system currently don't have linux, so linux commands won't work in local
+But, in docker container we created above from ubuntu, we can run linux commands
+
+docker run -it ubuntu  ==> Starts ubuntu container, and we enter the linux terminal Now
+We can execute ls and mkdir commands there.
+
+C:\Users>docker run -it ubuntu
+root@25b599e0472c:/# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@25b599e0472c:/# mkdir AD_FOLDER
+root@25b599e0472c:/# ls
+AD_FOLDER  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@25b599e0472c:/# exit
+exit
+
+C:\Users>
