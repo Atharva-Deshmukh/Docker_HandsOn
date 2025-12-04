@@ -1,0 +1,4 @@
+Either use windows cmd
+
+Or use docker desktop >> terminal
+and choose type of terminal here
