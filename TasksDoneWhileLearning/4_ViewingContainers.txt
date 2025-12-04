@@ -1,0 +1,21 @@
+To see all the containers (running + stopped)
+
+docker ps -a
+
+To see only the running containers
+
+docker ps
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE                COMMAND       CREATED          STATUS                      PORTS     NAMES
+25b599e0472c   ubuntu               "/bin/bash"   6 minutes ago    Exited (0) 6 minutes ago              eloquent_moser
+abc76ed55423   ubuntu               "/bin/bash"   11 minutes ago   Exited (0) 11 minutes ago             angry_mestorf
+d3dfa042322c   hello-world:latest   "/hello"      18 minutes ago   Exited (0) 18 minutes ago             quizzical_jang
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+// Since no container is running, its blank
+
+C:\Users>
+
