@@ -1,0 +1,44 @@
+docker run command creates a new container each time and runs it
+
+C:\Users>docker run ubuntu
+
+C:\Users>docker run ubuntu
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE                COMMAND       CREATED          STATUS                      PORTS     NAMES
+51ea8fb8c6e6   ubuntu               "/bin/bash"   4 seconds ago    Exited (0) 2 seconds ago              nifty_satoshi
+2f23ed192b51   ubuntu               "/bin/bash"   8 seconds ago    Exited (0) 6 seconds ago              naughty_kapitsa
+
+But, docker start <container_name> or <container_id> 
+starts an existing container.
+We can verify that it is started using docker ps -a command
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE                COMMAND       CREATED          STATUS                          PORTS     NAMES
+51ea8fb8c6e6   ubuntu               "/bin/bash"   11 minutes ago   Exited (0) 5 minutes ago                  nifty_satoshi
+d3dfa042322c   hello-world:latest   "/hello"      35 minutes ago   Exited (0) About a minute ago             quizzical_jang
+
+C:\Users>docker start quizzical_jang
+quizzical_jang
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE                COMMAND       CREATED          STATUS                     PORTS     NAMES
+51ea8fb8c6e6   ubuntu               "/bin/bash"   11 minutes ago   Exited (0) 5 minutes ago             nifty_satoshi
+d3dfa042322c   hello-world:latest   "/hello"      35 minutes ago   Exited (0) 3 seconds ago             quizzical_jang
+
+------------------------------------------------------------------------------------
+
+C:\Users>docker start 51ea8fb8c6e6
+51ea8fb8c6e6
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE                COMMAND       CREATED          STATUS                          PORTS     NAMES
+51ea8fb8c6e6   ubuntu               "/bin/bash"   13 minutes ago   Exited (0) 1 second ago                   nifty_satoshi
+d3dfa042322c   hello-world:latest   "/hello"      37 minutes ago   Exited (0) About a minute ago             quizzical_jang
+
+
+-------------------------------------------------------------------------------------
+
+Similar command is to stop the docker container via name and id
+
+Ex: docker stop nifty_satoshi
