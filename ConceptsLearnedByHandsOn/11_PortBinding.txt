@@ -155,7 +155,7 @@ da8fa80cc4b2   nginx:latest   "/docker-entrypoint.…"   4 seconds ago    Up 4 s
 3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    80/tcp                                    blissful_banach
 19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   11 minutes ago   Up 11 minutes   80/tcp
 
-C:\Users\z004r8tj>docker ps
+C:\Users>docker ps
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
 da8fa80cc4b2   nginx:latest   "/docker-entrypoint.…"   4 seconds ago    Up 4 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   youthful_jones
 3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    80/tcp                                    blissful_banach
