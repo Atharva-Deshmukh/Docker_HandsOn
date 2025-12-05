@@ -1,0 +1,54 @@
+What are environment variables in general (not just Docker)?
+------------------------------------------------------------
+
+Environment variables are key–value pairs available to programs running in an operating system.
+
+Examples on a normal OS:
+    PATH=/usr/bin:/bin
+    HOME=/home/user
+    PORT=8080
+
+
+Programs can read them to know configurations, credentials, settings, etc.
+
+What are environment variables in Docker?
+-----------------------------------------
+
+A Docker container is like a small Linux system.
+Inside it, programs can also read environment variables.
+
+Environment variables inside a container work the SAME way as on your computer.
+
+But the difference is: you control them at container runtime using:
+
+-e KEY=value
+--env KEY=value
+an environment file (--env-file file.env)
+Docker Compose environment: section
+
+Example: docker run -e USERNAME=admin -e PASSWORD=secret myapp
+
+
+Inside the container, the app can read:
+USERNAME
+PASSWORD
+
+Docker doesn’t require them unless the image specifically expects them.
+
+For example:
+    MySQL requires a variable:
+    -e MYSQL_ROOT_PASSWORD=...
+
+
+Because its ENTRYPOINT script checks for it.
+But Nginx doesn’t need any environment variables to run.
+So whether a variable is required depends on the app inside the container, not Docker itself.
+
+C:\Users>docker run --name mySQL_With_ENV -e YSQL_ROOT_PASSWORD=my-secret-pw -d mysql:latest
+feeefe2ec85ce7aac5ae8730bbb4ccce155d4b313b02635b21a4121882b74335
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                      PORTS     NAMES
+feeefe2ec85c   mysql:latest   "docker-entrypoint.s…"   31 seconds ago   Exited (1) 29 seconds ago             mySQL_With_ENV
+4660ceb3c8aa   nginx:latest   "/docker-entrypoint.…"   15 minutes ago   Exited (0) 6 seconds ago              AD_NGINX
+0fa8f78c5cad   mysql:8.0      "docker-entrypoint.s…"   16 minutes ago   Exited (1) 16 minutes ago             8thVersionOfMySQL
