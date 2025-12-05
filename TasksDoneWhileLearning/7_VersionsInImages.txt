@@ -1,0 +1,58 @@
+to pull a specific version of an image
+    docker pull <image_name>:version
+
+By default, docker pull command pulls with default tag = :latest
+
+PULL THE LATEST VERSION (DEFAULT)
+
+C:\Users>docker pull mysql
+Using default tag: latest
+latest: Pulling from library/mysql
+55f85a7d691e: Pull complete
+e4f376e797b1: Pull complete
+aff72f8f4e98: Pull complete
+57bd38a2d740: Pull complete
+f6a972aa365b: Pull complete
+b843491434c1: Pull complete
+ac5a3aa7003a: Pull complete
+ba8d858f8b56: Pull complete
+98d18218e1bb: Pull complete
+7a5e1e917526: Pull complete
+Digest: sha256:fe036967257bf11aab7184e371920c5b629f0dd36cbefdf4ccd2ae18cc900dbd
+Status: Downloaded newer image for mysql:latest
+docker.io/library/mysql:latest
+
+PULL A SPECIFIC VERSION
+
+C:\Users>docker pull mysql:8.0
+8.0: Pulling from library/mysql
+8c3cd0b3401c: Pull complete
+6b8812fa3131: Pull complete
+96682d77f5a0: Pull complete
+5f838d3bc363: Pull complete
+0ddab5f772d8: Pull complete
+98c09a342d40: Pull complete
+a3c731ffd1a3: Pull complete
+3a7bd505eaa0: Pull complete
+4f1ef7d4d76b: Pull complete
+907afe780e24: Pull complete
+Digest: sha256:0275a35e79c60caae68fac520602d9f6897feb9b0941a1471196b1a01760e581
+Status: Downloaded newer image for mysql:8.0
+docker.io/library/mysql:8.0
+
+NO CONTAINERS ARE GENERATED FOR NOW
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+TWO IMAGES ARE PULLED
+
+C:\Users>docker images
+                                                                                                          i Info →   U  In Use
+IMAGE          ID             DISK USAGE   CONTENT SIZE   EXTRA
+mysql:8.0      0275a35e79c6       1.06GB          232MB
+mysql:latest   fe036967257b       1.27GB          275MB
+
+we can now create two containers for separate mysql versions based on the respective images
+this way, we can run multiple sql versions in our machine using containers.
+
