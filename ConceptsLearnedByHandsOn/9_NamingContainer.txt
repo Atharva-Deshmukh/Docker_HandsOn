@@ -1,0 +1,17 @@
+By default, containers are given some random names by docker
+
+But we can controll that behaviour using --name flag
+
+C:\Users>docker images
+                                                                                                                                                                                               i Info →   U  In Use
+IMAGE          ID             DISK USAGE   CONTENT SIZE   EXTRA
+mysql:8.0      0275a35e79c6       1.06GB          232MB    U
+mysql:latest   fe036967257b       1.27GB          275MB
+nginx:latest   553f64aecdc3        225MB         59.8MB
+
+C:\Users>docker run --name AD_NGINX -d nginx:latest
+4660ceb3c8aa61863e79126c5b20d7ff9be80800c7999a91c114a0ba7d4521b7
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS                          PORTS     NAMES
+4660ceb3c8aa   nginx:latest   "/docker-entrypoint.…"   4 seconds ago        Up 3 seconds                    80/tcp    AD_NGINX
