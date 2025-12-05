@@ -1,0 +1,95 @@
+docker logs <container_name> OR <container_id>
+
+C:\Users>docker logs blissful_banach
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+
+
+C:\Users>docker logs 3c717108ac2e
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+
+docker exec -it <container_id> OR <container_name> bin/bash
+docker exec -it <container_id> OR <container_name> bin/sh     (some containers may have shell)
+
+Using these commands, we can access terminals of the containers
+and check the dependencies inside those containers directly
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS     NAMES
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   35 minutes ago   Up 35 minutes   80/tcp    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   37 minutes ago   Up 37 minutes   80/tcp    distracted_matsumoto
+
+C:\Users>docker exec -it bissful_branch bin/bash
+Error response from daemon: No such container: bissful_branch
+
+C:\Users>docker exec -it bissful_banach bin/bash
+Error response from daemon: No such container: bissful_banach
+
+C:\Users>docker exec -it blissful_banach bin/bash
+root@3c717108ac2e:/# ls
+bin  boot  dev  docker-entrypoint.d  docker-entrypoint.sh  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@3c717108ac2e:/# mkdir AD_DIR
+root@3c717108ac2e:/# ls
+AD_DIR  bin  boot  dev  docker-entrypoint.d  docker-entrypoint.sh  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@3c717108ac2e:/# exit
+exit
+
+C:\Users>docker exec -it blissful_banach bin/bash
+root@3c717108ac2e:/# env
+HOSTNAME=3c717108ac2e
+PWD=/
+PKG_RELEASE=1~trixie
+HOME=/root
+DYNPKG_RELEASE=1~trixie
+NJS_VERSION=0.9.4
+TERM=xterm
+SHLVL=1
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+NGINX_VERSION=1.29.3
+NJS_RELEASE=1~trixie
+_=/usr/bin/env
+root@3c717108ac2e:/#
+
+---------------------------------------------------------------------------------------------------------
+                                       CONCEPT: SHELL and TERMINAL
+
+Terminal = the UI (the window/program you type into)
+
+It handles:
+    displaying text
+    taking your keyboard input
+    showing output from programs
+
+The terminal does not understand commands.
+It just shows whatever the shell prints.
+
+Shell = the agent (the program that interprets your commands)
+
+It handles:
+    parsing the commands you type
+    running them
+    managing environment variables
+    scripting
+    pipes, redirects, history
+
+It is the brain basically, that understand, parse and outputs
+
+When you open a terminal, it usually launches a shell automatically (bash, zsh, sh, fish, etc.).
+
+Bash (Bourne Again shell) is one specific type of shell.
+It is the most widely used shell on Linux and macOS (before macOS switched to zsh by default).
+
+Terminal = the screen + keyboard interface
+Shell = the program that reads and executes commands
+
+You type into the terminal → the shell receives it → executes → terminal prints result.
+---------------------------------------------------------------------------------------------------------
+
+
