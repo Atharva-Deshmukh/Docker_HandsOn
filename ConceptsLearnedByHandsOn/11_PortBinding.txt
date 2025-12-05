@@ -1,0 +1,175 @@
+                                What is a port in the first place?
+                                ---------------------------------
+
+A port is like a door or channel through which data enters or leaves a computer.
+
+Every device (computer, server, phone) has:
+    One IP address → the building
+    Many ports → many doors inside the building
+
+Each application/service uses a specific port to communicate.
+
+                                    Why do we need ports?
+                                    ---------------------
+
+Because a computer often runs many network programs at the same time.
+
+Examples:
+
+    Browser
+    Messaging app
+    Game
+    Web server
+    Database
+
+All of these send/receive data over the internet.
+If data came only to the IP without ports, the OS wouldn’t know which app it belongs to.
+So ports help the OS route incoming data to the right application.
+
+                                    Technical definition
+                                    --------------------
+
+A port in CS is a 16-bit number (0–65535) that identifies a specific process or service on a networked machine.
+There are 65,536 possible ports.
+
+                                 Well-known ports (0–1023)
+                                 ------------------------
+
+These are reserved for standard services:
+
+Port	Service
+----    -------
+80	    HTTP
+443	    HTTPS
+22	    SSH
+25	    SMTP
+3306	MySQL
+6379	Redis
+
+Your machine reserves these for common protocols.
+
+
+                                How ports work during communication
+                                -----------------------------------
+
+Example: You visit a website:
+
+Step 1: Browser uses an outgoing port (random ephemeral port) --> Example: port 52341
+Step 2: It sends a request to the server’s port 80 --> Your computer (port 52341) → Server (port 80)
+Step 3: Server replies back to the same port --> Server (port 80) → Your computer (port 52341)
+
+                        Command to see all ports active in our machine
+                        ----------------------------------------------
+C:\Users>netstat -ano
+
+Active Connections
+  Proto  Local Address          Foreign Address        State           PID
+  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       1600
+  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:5040           0.0.0.0:0              LISTENING       3276
+  TCP    0.0.0.0:7680           0.0.0.0:0              LISTENING       4944
+
+
+                            Understanding Port Binding in Docker
+                            ------------------------------------
+
+A Docker container is like a tiny isolated computer running inside your actual computer.
+Inside that tiny computer, applications run just like on a normal system.
+
+A container has its own private network
+    It has its own IP address
+    It has its own ports
+
+Those ports are NOT automatically visible to your host machine
+
+This means:
+If a web server is running inside a container on port 80, your machine cannot access it 
+unless you make it accessible.
+
+That’s where port binding comes in.
+
+                            What is port binding in Docker?
+                            -------------------------------
+
+Port binding connects (maps) a port on your HOST machine to a port inside the container.
+Think of it like opening a window from your computer into the container.
+
+The syntax is: -p <host-port>:<container-port>
+Example: -p 8080:80
+
+                            Why do we need port binding?
+                            ----------------------------
+
+Because containers are isolated.
+By default, nothing inside them is exposed to the outside world.
+
+Port binding allows:
+
+    The host machine to talk to the container
+    A browser to access a web server in a container
+    External tools or APIs to connect
+
+Without port binding, a container’s service is invisible to your computer.
+
+                            How to remove port binding
+                            --------------------------
+
+Port binding is not a permanent system change.
+It exists only for the lifetime of the container
+
+✔ Option 1: Stop the container --> docker stop <container-id>
+                                   After this, nothing is listening on the host port anymore.
+
+✔ Option 2: Remove the container --> docker rm <container-id>
+                                     This completely removes the port binding as well.
+
+✔ Option 3: Re-run the container WITHOUT -p
+If you want the same container image but without port binding:
+docker run --name myapp myimage
+
+
+SEEING THE PORT NUMBER WHERE OUR CONTAINER IS running
+
+C:\Users>docker run -d nginx:latest
+19adf7d35b327412a316dfea84621e5f44d5979040c304fd073e7ffb327fb182
+
+C:\Users>docker ps                                                                              \\\\\
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS     NAMES
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   7 seconds ago        Up 6 seconds        80/tcp    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    distracted_matsumoto
+
+Here, the same port means individual port 80 of each container, not of the local machine that is 
+hosting the containers
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS     NAMES
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    80/tcp    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   10 minutes ago   Up 10 minutes   80/tcp    distracted_matsumoto
+
+C:\Users>docker run -d -p8080:80 nginx:latest
+da8fa80cc4b285df568b95ef2e61c7e502c2004e85b6f81c55f65302dc3b122b
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+da8fa80cc4b2   nginx:latest   "/docker-entrypoint.…"   4 seconds ago    Up 4 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   youthful_jones
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    80/tcp                                    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   11 minutes ago   Up 11 minutes   80/tcp
+
+C:\Users\z004r8tj>docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+da8fa80cc4b2   nginx:latest   "/docker-entrypoint.…"   4 seconds ago    Up 4 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   youthful_jones
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    80/tcp                                    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   11 minutes ago   Up 11 minutes   80/tcp                                    distracted_matsumoto
+
+C:\Users>docker stop youthful_jones
+youthful_jones
+
+C:\Users>docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                     PORTS     NAMES
+da8fa80cc4b2   nginx:latest   "/docker-entrypoint.…"   2 minutes ago    Exited (0) 7 seconds ago             youthful_jones
+3c717108ac2e   nginx:latest   "/docker-entrypoint.…"   12 minutes ago   Up 12 minutes              80/tcp    blissful_banach
+19adf7d35b32   nginx:latest   "/docker-entrypoint.…"   13 minutes ago   Up 13 minutes              80/tcp    distracted_matsumoto
+
+NOTE:
+SAME HOST MACHINE PORTS CANNOT BE BINDED TO TWO DIFFERENT containers
+Containers are isolated, but host machine ports are unique
