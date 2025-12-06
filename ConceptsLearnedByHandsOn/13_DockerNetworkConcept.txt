@@ -9,6 +9,11 @@ NETWORK ID     NAME      DRIVER    SCOPE
 16fb85c0b9da   host      host      local
 7518ddf84cc2   none      null      local
 
+In a Docker bridge network, containers can communicate with each other without exposing or 
+binding any ports on the host.
+
+Port binding is only for binding host port to container port.
+
                                         SOME NETWORKING CONCEPTS
                                         ------------------------
 
