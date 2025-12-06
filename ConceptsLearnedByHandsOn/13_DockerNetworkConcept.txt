@@ -1,0 +1,288 @@
+Docker networking allows containers to communicate with each other, the host, and external networks. 
+By default Docker provides multiple types of networks, each designed for a different use case.
+
+You can list available networks using:  docker network ls
+
+C:\Users>docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+0b45d9e34444   bridge    bridge    local
+16fb85c0b9da   host      host      local
+7518ddf84cc2   none      null      local
+
+                                        SOME NETWORKING CONCEPTS
+                                        ------------------------
+
+                                                BRIDGE  
+
+A network bridge is a device (software or hardware) that connects two or more network segments
+at Layer 2 (Data Link Layer) of the OSI model.
+
+Why Use a Bridge?
+
+    To divide large networks into smaller and faster segments.
+    To reduce collisions on shared media. (when multiple networks are linked to same point, 
+    there are collisions)
+    To allow communication between different LAN segments.
+
+What Is a Bridge in Docker Networking?
+
+Docker uses Linux networking concepts, and one of the core ones is the bridge network.
+By default, Docker creates a virtual bridge called: docker0
+This is a software bridge inside the host machine.
+
+Docker creates a virtual Ethernet bridge (like a virtual switch): docker0
+
+When Docker starts, this bridge
+    Has its own IP address (usually 172.17.0.1)
+    Connects all containers that use the default bridge network
+    Lets containers communicate as if they are on the same LAN
+
+When you start a container
+
+Docker creates a virtual Ethernet pair (veth pair): vethXYZ <----> eth0 (inside container)
+    One end goes inside the container as eth0
+    The other end is attached to the host’s bridge docker0
+
+So all containers using the bridge network look like this:
+
+Container1 eth0 ---\
+                    \
+Container2 eth0 ----- docker0 (bridge) ---- host network ---- Internet
+                    /
+Container3 eth0 ---/
+
+What the Docker Bridge Does
+
+Same job as a networking bridge:
+
+Assigns private IPs to containers
+    e.g., 172.17.0.2, 172.17.0.3, …
+
+Stores MAC → Container mappings
+    Keeps track of interfaces connected.
+
+Forwards packets between containers
+    Only forwards to the right veth pair.
+
+NAT
+    Allows containers to reach the outside internet.
+
+
+                                        NAT (Network Address Translation)
+
+It is a technique used in networking where a router changes IP addresses in packets as they pass through.
+
+Why do we need it?
+
+Because we have:
+
+    Private IPs (used inside homes/offices)
+    Public IPs (used on the Internet)
+
+There are billions of devices, but limited public IPs.
+NAT lets many private devices share one public address.
+
+Ex: Devices in your home
+Laptop: 192.168.1.2
+Phone : 192.168.1.3
+TV    : 192.168.1.4
+
+Your router has:
+Private side: 192.168.1.1
+Public side : 203.0.113.5
+
+When your laptop visits google.com:
+Laptop → Router → Router changes 192.168.1.2 → 203.0.113.5 → Internet
+
+The reply comes back to the router, and the router knows:
+203.0.113.5 → (which private device?)
+It rewrites it back: 203.0.113.5 → 192.168.1.2
+
+✔ Everyone in your home shares one public IP
+✔ Internet doesn't know your internal IP addresses
+
+NAT in Docker is real because the Linux kernel performs actual NAT translations.
+
++-------------------------+
+|  Host IP: 192.168.1.10  |
+|                         |
++-----------+-------------+
+            |
+       NAT / Port Mapping
+            |
++-----------+-------------+
+|   Docker Bridge (docker0)|
+|   172.17.0.0/16          |
+|                          |
+|   Container: 172.17.0.2  |
+|   Service: port 80       |
++--------------------------+
+
+
+
+                                        TYPES OF DOCKER NETWORKS
+                                        ------------------------
+
+                                        1. Bridge Network (Default)
+
+                                        +------------------------+
+                                        |     Docker Host        |
+                                        |                        |
+                                        |   Bridge Network       |
+                                        |   (docker0)            |
+                                        |   172.17.0.0/16        |
+                                        |                        |
+                                +-------------+        +-------------+
+                                |  Container  |<------>|  Container  |
+                                |   app       |        |   db        |
+                                |172.17.0.2   |        |172.17.0.3   |
+                                +-------------+        +-------------+
+
+  ✔ Containers can talk to each other by name.
+  ✔ NAT used for outgoing traffic.
+
+What it is
+
+The default network type for containers (unless you specify otherwise).
+Containers on the same bridge network can communicate with each other using container names.
+They get private IP addresses managed by Docker.
+
+When to use
+
+Multi-container apps running on a single host (e.g., app + database).
+You want simple internal communication between containers.
+
+Commands
+
+Create a bridge network- --> docker network create -d bridge my_bridge
+
+Run containers inside it:
+
+docker run -d --name app --network my_bridge nginx
+docker run -d --name db --network my_bridge redis
+
+Test connectivity --> docker exec -it app ping db
+
+                                        2. Host Network
+
+                    +----------------------------------------------------------+
+                    |                    Docker Host                           |
+                    |                                                          |
+                    |  Host Network Stack (no separate container network)      |
+                    |  IP: 192.168.1.10                                        |
+                    |                                                          |
+                    |          +-------------------------------+               |
+                    |          |         Container             |               |
+                    |          |  (shares host network)        |               |
+                    |          |  nginx                        |               |
+                    |          +-------------------------------+               |
+                    |                                                          |
+                    +----------------------------------------------------------+
+
+✔ Container uses the host’s IP directly.
+✔ No NAT, highest performance.
+
+What it is
+
+The container shares the host machine’s network stack.
+No virtual NIC, no private IP—container uses host IP directly.
+
+When to use
+
+You need maximum network performance (no NAT).
+Running servers that rely on host networking features (e.g., broadcast, multicast).
+
+⚠ Limitation -> Only available for Linux (not Docker Desktop for Mac/Windows).
+
+Commands
+
+Run container with host network: docker run --network host nginx
+
+Nginx will now be reachable at:
+http://localhost:80 (no port mapping needed)
+
+
+                                              3. None Network
+
+                                            +------------------------+
+                                            |     Container          |
+                                            |------------------------|
+                                            | No NIC except loopback |
+                                            | No external network    |
+                                            +------------------------+
+
+✔ Completely isolated.
+
+What it is
+
+Completely disables networking.
+Container has no access to network interfaces except loopback.
+
+When to use
+
+Very high security.
+Tasks that don’t require networking.
+
+Commands --> docker run --network none busybox
+
+
+                                         4. Overlay network
+
+
+                                Multi-Host Cluster (Docker Swarm)
+                        Host A                                   Host B
+                    +----------------+                    +------------------+
+                    |   Container A  |                    |   Container B    |
+                    |  10.0.0.2      |                    |   10.0.0.3       |
+                    +----------------+                    +------------------+
+                            \                                   /
+                             \                                 /
+                              \          Overlay Network      /
+                               \    (Spans multiple hosts)   /
+                                \        10.0.0.0/24        /
+                                 +-------------------------+
+
+✔ Containers on different machines communicate securely.
+✔ Used in Swarm / multi-node deployments.
+
+What it is
+
+    Creates networks that span multiple Docker hosts.
+    Allows containers running on different machines to communicate securely.
+
+When to use
+
+    Multi-node clusters.
+    Microservices distributed across multiple servers.
+
+Commands
+
+Initialize Swarm --> docker swarm init
+Create overlay network --> docker network create -d overlay my_overlay
+Use in a service --> docker service create --name web --network my_overlay nginx
+
+-------------------------------------------------------------------------------------------------
+
+COMMAND to create our own docker network: docker network create <network_name>
+
+C:\Users>docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+0b45d9e34444   bridge    bridge    local
+16fb85c0b9da   host      host      local
+7518ddf84cc2   none      null      local
+
+C:\Users>docker network create mongo-net
+ad3af3ddd8d4e7f18615fb0e902826f5cd55bdd1bbdffb9c4a5892b0f7e59fe6
+
+C:\Users>docker network create express-net
+707aa03f4bc992632e05d77ea909c866d0c5eaf9b2fb10ede1c8fe100f98c146
+
+C:\Users>docker network ls
+NETWORK ID     NAME          DRIVER    SCOPE
+0b45d9e34444   bridge        bridge    local
+707aa03f4bc9   express-net   bridge    local   --> created default bridge type network
+16fb85c0b9da   host          host      local
+ad3af3ddd8d4   mongo-net     bridge    local   --> created default bridge type network
+7518ddf84cc2   none          null      local
+
+C:\Users>
