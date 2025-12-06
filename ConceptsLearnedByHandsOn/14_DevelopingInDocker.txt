@@ -1,0 +1,74 @@
+Lets try to develop something in docker
+
+We have a node app that has two routes defined, very simple one
+It has two dependencies:
+    mongo-db --> database app will use
+    mongo-express --> interface for this DB
+
+We don't want these dependencies inside our local system, we will use docker containers for it 
+
+mongo-db image:
+
+    this image has a port that comes with it, based on dockerhub details, port = 27017
+    we will bind our own localhost to the same port, so we need to do little port binding here
+
+    we will run this container in detached mode
+    we will give this container a custom name
+
+    Based on this file in dockerhub data for this image:
+
+    Example compose.yaml for mongo:
+        services:
+        mongo:
+            image: mongo
+            restart: always
+            environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+
+    we need to pass these variables in environment compulsorily.
+
+    we will directly run the container, image will be pulled automatically
+
+    we need to pass many parameters in our docker run command, so we will break the line, 
+    and on each line, we will pass individual parameters, for better readability.
+
+        In Windows CMD (use ^ at line breaks)
+        In PowerShell (use backtick ` at line breaks)
+        In Linux/macOS (bash/zsh) (use \ at line breaks)
+
+C:\Users>docker network ls
+NETWORK ID     NAME          DRIVER    SCOPE
+0b45d9e34444   bridge        bridge    local
+707aa03f4bc9   express-net   bridge    local
+16fb85c0b9da   host          host      local
+ad3af3ddd8d4   mongo-net     bridge    local
+7518ddf84cc2   none          null      local
+
+C:\Users>docker run -d ^
+More? -p27017:27017 ^
+More? --name mongo-container ^
+More? --network mongo-net ^
+More? -e MONGO_INITDB_ROOT_USERNAME=admin ^
+More? -e MONGO_INITDB_ROOT_PASSWORD=qwerty ^
+More? mongo
+Unable to find image 'mongo:latest' locally
+latest: Pulling from library/mongo
+a89cc6fb1ead: Pull complete
+88373bcb58c1: Pull complete
+7230971360e4: Pull complete
+dcec2d403c4e: Pull complete
+20043066d3d5: Pull complete
+6dc84fd2f3ac: Pull complete
+8a63055b2837: Pull complete
+1732f2a4d259: Pull complete
+Digest: sha256:7245ffb851d149dbfac67397caf91bae4974d899972f9fd1d8985fc6eea3c13d
+Status: Downloaded newer image for mongo:latest
+3199c47e092b6db235952262abc4851aab62b8d5c65e709207dd94264543ccc0
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                             NAMES
+3199c47e092b   mongo     "docker-entrypoint.s…"   11 minutes ago   Up 10 minutes   0.0.0.0:27017->27017/tcp, [::]:27017->27017/tcp   mongo-container
+
+Similarly, pull the mongo-express image and run with similar envs
+
