@@ -39,6 +39,40 @@ You can find the Node.js application here:
 
 ---
 
+### ARCHITECTURAL FLOW of the App
+
+<!-- 
+
+┌─────────────────────────────────────────────────────────────┐
+│                    Docker Container Setup                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              Docker Network: mongoDB-net            │   │
+│  │                                                     │   │
+│  │   ┌──────────────┐         ┌──────────────┐        │   │
+│  │   │   MongoDB    │         │ Mongo-Express│        │   │
+│  │   │              │         │              │        │   │
+│  │   │  Port: 27017 ├─────────► Port: 8081   │        │   │
+│  │   │  User: admin │         │  Web UI Auth:│        │   │
+│  │   │  Pass: qwerty│         │  admin/pass  │        │   │
+│  │   └──────┬───────┘         └──────┬───────┘        │   │
+│  └──────────┼─────────────────────────┼────────────────┘   │
+│             │                         │                    │
+│    ┌────────▼─────┐         ┌────────▼─────┐              │
+│    │ Host:27017   │         │ Host:8081    │              │
+│    │ (localhost)  │         │ (localhost)  │              │
+│    └──────────────┘         └──────────────┘              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Flow: User → localhost:8081 → Mongo-Express → MongoDB
+Credentials: admin/qwerty (MongoDB) + admin/pass (Web UI).
+
+Mongo DB is running inside docker container, not in our local
+
+ -->
+
 ### Step 1: Start MongoDB and Mongo-Express Containers
 
 Start the MongoDB container:
