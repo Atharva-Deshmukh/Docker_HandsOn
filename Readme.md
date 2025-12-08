@@ -41,7 +41,7 @@ You can find the Node.js application here:
 
 ### ARCHITECTURAL FLOW of the App
 
-<!-- 
+```text
 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Docker Container Setup                    │
@@ -71,7 +71,7 @@ Credentials: admin/qwerty (MongoDB) + admin/pass (Web UI).
 
 Mongo DB is running inside docker container, not in our local
 
- -->
+```
 
 ### Step 1: Start MongoDB and Mongo-Express Containers
 
