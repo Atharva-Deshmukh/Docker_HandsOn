@@ -48,7 +48,7 @@ ad3af3ddd8d4   mongo-net     bridge    local
 C:\Users>docker run -d ^
 More? -p27017:27017 ^
 More? --name mongo-container ^
-More? --network mongo-net ^
+More? --network mongoDB-net ^
 More? -e MONGO_INITDB_ROOT_USERNAME=admin ^
 More? -e MONGO_INITDB_ROOT_PASSWORD=qwerty ^
 More? mongo
@@ -72,3 +72,18 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS       
 
 Similarly, pull the mongo-express image and run with similar envs
 
+Its almost same command, just search mongo-express official docker image on docker hub
+
+
+RUN both mongoDB and mongoexpress on same network
+
+docker run -d ^
+More?   -p 8081:8081 ^
+More?   --name mongo-express-container ^
+More?   --network mongoDB-net ^
+More?   -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin ^
+More?   -e ME_CONFIG_MONGODB_ADMINPASSWORD=qwerty ^
+More?   -e ME_CONFIG_MONGODB_SERVER=mongo-container ^
+More?   -e ME_CONFIG_BASICAUTH=false ^
+More?   mongo-express
+8d276a85883b9610e16ab8cc3e9a1a7a7b517eb36a0753f97f175b7f13cc1147
