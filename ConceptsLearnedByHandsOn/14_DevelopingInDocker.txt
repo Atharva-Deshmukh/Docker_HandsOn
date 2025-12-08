@@ -93,3 +93,144 @@ After successfull Run, our setup looks something like this
 
 -> Docker desktop: ConceptsLearnedByHandsOn\Images\DockerDesktopAfterSetup.png
 -> MongoDB using Mongo-express -> ConceptsLearnedByHandsOn\Images\MongoDBInterfaceUsingMongoExpress.png
+
+On mongoDB, via mongo-express interface, create 
+new db -> docker-db
+new collection -> users 
+new document ->   
+{
+    "_id": "69370615855eaf42418251cb",
+    "email": "ad@gmail.com",
+    "username": "Atharva Deshmukh",
+    "password": "qwerty"
+}
+
+Now, app code:
+
+//////////////////////////////////////////////////////////////////////
+const express = require("express");
+const app = express();
+const { MongoClient } = require("mongodb");
+
+const PORT = 5050;
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // for JSON body
+app.use(express.static("public"));
+
+// MongoDB running in Docker, connect from host
+const MONGO_URL = "mongodb://admin:qwerty@localhost:27017/?authSource=admin";
+const DB_NAME = "docker-db";
+const COLLECTION_NAME = "users";
+
+let client;
+
+// Connect once and reuse
+async function connectToMongo() {
+  if (!client || !client.isConnected?.()) {
+    client = new MongoClient(MONGO_URL, { useUnifiedTopology: true });
+    await client.connect();
+    console.log("Connected successfully to MongoDB");
+  }
+  return client.db(DB_NAME);
+}
+
+// GET all users
+app.get("/getUsers", async (req, res) => {
+  try {
+    const db = await connectToMongo();
+    const users = await db.collection(COLLECTION_NAME).find({}).toArray();
+    res.json(users);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// POST new user
+app.post("/addUser", async (req, res) => {
+  try {
+    const userObj = req.body;
+    const db = await connectToMongo();
+    const result = await db.collection(COLLECTION_NAME).insertOne(userObj);
+    console.log("Inserted:", result.insertedId);
+    res.json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    console.error("Error inserting user:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+//////////////////////////////////////////////////////////////////////
+
+Hit node app.js and start the app
+Node modules are all fetched from node modules
+
+But, the DB we are connecting, its not installed on the local, its in a docker container, 
+mongo-container.
+
+When we run: http://localhost:5050/getUsers
+
+Response:
+[
+  {
+    "_id": "69370615855eaf42418251cb",
+    "email": "ad@gmail.com",
+    "username": "Atharva Deshmukh",
+    "password": "qwerty"
+  }
+]
+
+REFER -> ConceptsLearnedByHandsOn\Images\AppResponse.png
+
+How could we fetch data in mongo db, although mongo db is not installed in our local?
+
+-> Its through the docker container, container is hosted in docker.
+
+See const MONGO_URL = "mongodb://admin:qwerty@localhost:27017/?authSource=admin";
+
+From localhost:27017 → host port bound to the MongoDB container port.
+
+In Docker, we ran the container using: docker run -p 27017:27017 mongo
+The -p flag binds the container’s port 27017 to your host’s port 27017.
+
+That’s why our host Node.js app can connect to the container: 
+the traffic goes through the host port → Docker container → MongoDB.
+
+The port mapping is why your app can reach the database. 
+
+////////////////////////////////////////////////////////////////
+ARCHITECTURE
+
+┌─────────────────────────────────────────────────────────────┐
+│                    Docker Container Setup                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              Docker Network: mongoDB-net            │   │
+│  │                                                     │   │
+│  │   ┌──────────────┐         ┌──────────────┐        │   │
+│  │   │   MongoDB    │         │ Mongo-Express│        │   │
+│  │   │              │         │              │        │   │
+│  │   │  Port: 27017 ├─────────► Port: 8081   │        │   │
+│  │   │  User: admin │         │  Web UI Auth:│        │   │
+│  │   │  Pass: qwerty│         │  admin/pass  │        │   │
+│  │   └──────┬───────┘         └──────┬───────┘        │   │
+│  └──────────┼─────────────────────────┼────────────────┘   │
+│             │                         │                    │
+│    ┌────────▼─────┐         ┌────────▼─────┐              │
+│    │ Host:27017   │         │ Host:8081    │              │
+│    │ (localhost)  │         │ (localhost)  │              │
+│    └──────────────┘         └──────────────┘              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Flow: User → localhost:8081 → Mongo-Express → MongoDB
+Credentials: admin/qwerty (MongoDB) + admin/pass (Web UI).
+
+Mongo DB is running inside docker container, not in our local
+
+////////////////////////////////////////////////////////////////
