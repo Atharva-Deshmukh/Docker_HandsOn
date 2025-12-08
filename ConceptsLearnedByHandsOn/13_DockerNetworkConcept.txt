@@ -290,4 +290,14 @@ NETWORK ID     NAME          DRIVER    SCOPE
 ad3af3ddd8d4   mongo-net     bridge    local   --> created default bridge type network
 7518ddf84cc2   none          null      local
 
-C:\Users>
+TO DELETE A NETWORK
+
+C:\Usersdocker network rm express-net
+express-net
+
+C:\Usersdocker network ls
+NETWORK ID     NAME        DRIVER    SCOPE
+fea884118ba9   bridge      bridge    local
+16fb85c0b9da   host        host      local
+ad3af3ddd8d4   mongo-net   bridge    local
+7518ddf84cc2   none        null      local
