@@ -30,3 +30,57 @@ Everything here is aimed at helping beginners understand containerization in a s
 Notes are also added here to record
 - Docker Concepts
 - Commands Cheatsheet
+
+## 🖥 Application Setup and Testing
+
+### Application Code
+You can find the Node.js application here:  
+[Docker-Test-App Repository](https://github.com/Atharva-Deshmukh/Docker-Test-App)
+
+---
+
+### Step 1: Start MongoDB and Mongo-Express Containers
+
+Start the MongoDB container:
+
+```cmd
+docker run -d ^
+-p27017:27017 ^
+--name mongo-container ^
+--network mongoDB-net ^
+-e MONGO_INITDB_ROOT_USERNAME=admin ^
+-e MONGO_INITDB_ROOT_PASSWORD=qwerty ^
+mongo
+```
+
+```cmd
+docker run -d ^
+-p 8081:8081 ^
+--name mongo-express-container ^
+--network mongoDB-net ^
+-e ME_CONFIG_MONGODB_ADMINUSERNAME=admin ^
+-e ME_CONFIG_MONGODB_ADMINPASSWORD=qwerty ^
+-e ME_CONFIG_MONGODB_SERVER=mongo-container ^
+-e ME_CONFIG_BASICAUTH=false ^
+mongo-express
+```
+
+Note: Both containers should be run on the same Docker network (mongoDB-net) for proper communication.
+
+Repo where app is there: https://github.com/Atharva-Deshmukh/Docker-Test-App
+
+Start the app
+```cmd
+node server.js
+```
+Check if the app is working. Fetch all users in the database:
+```cmd
+http://localhost:5050/getUsers
+```
+
+To modify the database directly via the web UI, open Mongo-Express:
+
+```cmd
+http://localhost:8081/db/admin/
+```
+
