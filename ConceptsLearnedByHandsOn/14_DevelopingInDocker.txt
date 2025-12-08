@@ -87,3 +87,9 @@ More?   -e ME_CONFIG_MONGODB_SERVER=mongo-container ^
 More?   -e ME_CONFIG_BASICAUTH=false ^
 More?   mongo-express
 8d276a85883b9610e16ab8cc3e9a1a7a7b517eb36a0753f97f175b7f13cc1147
+
+
+After successfull Run, our setup looks something like this
+
+-> Docker desktop: ConceptsLearnedByHandsOn\Images\DockerDesktopAfterSetup.png
+-> MongoDB using Mongo-express -> ConceptsLearnedByHandsOn\Images\MongoDBInterfaceUsingMongoExpress.png
