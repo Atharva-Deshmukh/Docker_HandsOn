@@ -199,3 +199,31 @@ Most teams prefer dictionary form because it is:
     easier to maintain
     YAML-friendly
 
+
+NOTE:
+
+In Docker Compose, the service name is NOT the container name.
+
+Example:
+  services:
+    mongo:
+      image: mongo
+
+
+Here:
+mongo = service name
+Docker Compose will automatically create a container name like: <project-name>_mongo_1
+(Example: myproject_mongo_1)
+
+The service name acts as the hostname inside the network
+This means: mongo is a valid hostname for other services to connect to.
+Mongo Express uses: ME_CONFIG_MONGODB_SERVER=mongo
+
+Because mongo is the service name, which automatically becomes DNS hostname in the Compose network.
+
+You can give a manual container name — but it's optional
+Example:
+  services:
+    mongo:
+      image: mongo
+      container_name: mongo-container
