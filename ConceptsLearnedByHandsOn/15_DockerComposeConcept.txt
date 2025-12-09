@@ -227,3 +227,15 @@ Example:
     mongo:
       image: mongo
       container_name: mongo-container
+
+
+                                          SOME COMMANDS TO REMEMBER
+
+Purpose	                                      Command
+-----------------------------------------------------------------------
+Start everything	                            docker compose up -d
+Stop and remove everything	                  docker compose down
+Rebuild	                                      docker compose up --build -d
+See logs	                                    docker compose logs -f
+Enter a container	                            docker compose exec <service> bash
+Check status	                                docker compose ps
