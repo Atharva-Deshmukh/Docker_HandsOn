@@ -1,0 +1,201 @@
+                                            What Is Docker Compose?
+                                            -----------------------
+
+Docker Compose is a tool that lets you run and manage multiple Docker containers as a single application.
+
+Think of it like this:
+    Docker = runs one container at a time
+    Docker Compose = runs a whole system of containers together
+
+If your app needs:
+    a backend (container 1)
+    a database (container 2)
+    a frontend (container 3)
+
+Docker Compose helps you start all of them with one command.
+
+                                            Why Docker Compose?
+                                            -------------------
+
+Real applications often need several services working together.
+
+Without Compose, you'd have to start each container manually:
+    docker run backend
+    docker run database
+    docker run frontend
+
+Configure networking yourself…
+Link them manually…
+Remember many parameters…
+😫 Too much work.
+
+With Compose, you write everything in one YAML file, then run: docker compose up
+And everything starts automatically.
+
+Also, editing commands becomes easy on a single file where everything is at one place, 
+rather than rewriting same commands again and again on terminal.
+
+                                            Docker Compose vs Kubernetes
+                                            ----------------------------
+
+Feature	Docker                      Compose	                        Kubernetes
+-----------------------------------------------------------------------------------------
+Works on multiple machines	           ❌ No	                        ✔️ Yes
+Auto-restart failed containers	       ❌ Basic	                    ✔️ Advanced
+Auto-scaling	                       ❌ No	                        ✔️ Yes
+Rolling updates	                       ❌ No	                        ✔️ Yes
+Load balancing across nodes	           ❌ No	                        ✔️ Yes
+Production-grade	                   ❌ Not really	                ✔️ Yes
+Complexity	                           ⭐ Simple	                    🔥 Complex
+Ideal Use	                           Dev / small apps	              Big distributed apps
+
+                                            Networking in Docker Compose
+                                            ----------------------------
+
+Docker Compose creates a default network for all the services in that docker-compose.yml file.
+By default, the network is named like: <project-name>_default
+Example: myapp_default
+
+What type of network is it --> by default, Docker Compose uses a bridge network 
+(more specifically, user-defined bridge network).
+
+Not the default Docker bridge network that containers use when run manually
+
+Inside this automatically created bridge network:
+
+every container can reach others using the service name, you do not need to specify --network manually.
+No need for container IPs.
+
+                                            Docker Compose yaml file
+                                            ------------------------
+
+YAML stands for "Yet Another Markup Language." It is a human-readable data serialization language 
+used for configuration files.
+
+You can name the Docker Compose file almost anything you want BUT with certain rules to remember.
+
+Default Filenames (no extra flags needed)
+
+Docker Compose automatically detects only two filenames:
+1. docker-compose.yml
+2. docker-compose.yaml
+
+Newer Compose (v2) also supports:
+3. compose.yml
+4. compose.yaml
+
+If your file is named one of these → you can simply run: docker compose up
+No extra options needed.
+
+If you use ANY OTHER NAME (Example: myapp.yml, backend.yaml, app-compose.yml, etc.)
+
+You can use it — but you must tell Docker explicitly --> docker compose -f myapp.yml up
+Or multiple files --> docker compose -f app.yml -f prod.yml up
+
+So yes, you can name it anything, but then you must pass -f.
+
+                                    UNDERSTANDING DOCKER COMPOSE YAML FILE
+
+services:
+  app:
+    build: .  --> Build an image from a Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - db
+    networks:
+      - backend
+    volumes:
+      - ./src:/app/src
+    restart: always
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+
+volumes:
+  dbdata:
+
+networks:
+  backend:
+
+This file defines:
+    two services: app + database
+    both share the backend network
+    DB data persists
+    app restarts automatically
+    healthcheck for DB
+
+A Compose file contains three major top-level areas:
+    services:   # containers you want to run
+    volumes:    # named volumes (optional)
+    networks:   # networks (optional)
+
+Version line (version:) used to be required in older Compose formats but is optional now.
+
+A minimal service looks like:
+
+services:
+  app:
+    image: nginx
+
+
+Below are the most important options inside a service.
+
+image: nginx:latest --> Use an existing image from Docker Hub
+
+build:              --> Build an image from a Dockerfile
+  context: .
+  dockerfile: Dockerfile.dev
+
+Or shorthand:
+
+build: .
+
+ports:              --> Expose container ports to your machine
+  - "8080:80"
+
+Some more options:
+
+    env_file --> Load environment variables from file:
+    env_file: .env
+
+Defining environment variables:
+
+1. List Form (Array Style)
+
+    environment:
+    - NODE_ENV=production
+    - DB_HOST=db
+
+✔ Good for simple key=value pairs
+✔ Looks similar to shell syntax
+
+
+2. Dictionary Form (Map Style)
+
+    environment:
+        NODE_ENV: production
+        DB_HOST: db
+
+✔ More YAML-friendly
+✔ Better for complex values
+✔ Handles values with spaces or special characters better
+
+
+Most teams prefer dictionary form because it is:
+    easier to read
+    easier to maintain
+    YAML-friendly
+
