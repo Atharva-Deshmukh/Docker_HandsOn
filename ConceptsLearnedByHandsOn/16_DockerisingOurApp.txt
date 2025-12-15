@@ -1,0 +1,129 @@
+Lets move back to our project now and dockerise it
+
+Create a monogoDB-docker.yaml file in the node project Repo -> https://github.com/Atharva-Deshmukh/Docker-Test-App
+
+Converting the commands we run last time into docker-yaml file:
+
+/////////////////////////////////////////////////////////////////////
+version: "3.8" # this is deprecated now, its optional
+
+services:
+  mongoDB:
+    image: mongo
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    networks:
+      - mongoDB-net
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express-container
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_SERVER: mongoDB   # service name, not container name
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongoDB
+    networks:
+      - mongoDB-net
+
+networks:
+  mongoDB-net:
+  
+/////////////////////////////////////////////////////////////////////
+
+if no network is given, then by default docker runs all the containers in a default network.
+
+Command to run our docker file: docker compose -f <yml file name> up -d
+
+This command should be run where we have docker compose file written
+
+C:\REPOS\NodeAppForDocker\docker-testapp>docker compose -f mongodb.yaml up -d
+
+time="2025-12-15T21:35:14+05:30" level=warning msg="C:\\REPOS\\NodeAppForDocker
+\\docker-testapp\\mongodb.yaml: the attribute `version` is obsolete, it will be ignored,   --> we got warning that version is obsolete in dockerfile.yml
+please remove it to avoid potential confusion"
+[+] Running 18/18
+ ✔ mongoDB Pulled                                                    35.3s 
+   ✔ a89cc6fb1ead Pull complete                                      29.0s 
+   ✔ 1732f2a4d259 Pull complete                                       8.5s 
+   ✔ 88373bcb58c1 Pull complete                                      28.9s 
+   ✔ 7230971360e4 Pull complete                                       2.6s 
+   ✔ 20043066d3d5 Pull complete                                       7.4s 
+   ✔ dcec2d403c4e Pull complete                                       1.4s 
+   ✔ 6dc84fd2f3ac Pull complete                                       1.6s 
+   ✔ 8a63055b2837 Pull complete                                       8.4s 
+ ✔ mongo-express Pulled                                             113.3s 
+   ✔ 0bf3571b6cd7 Pull complete                                       1.9s 
+   ✔ 7e9a007eb24b Pull complete                                     103.6s 
+   ✔ 619be1103602 Pull complete                                      51.8s 
+   ✔ d8305ae32c95 Pull complete                                       9.7s 
+   ✔ 5189255e31c8 Pull complete                                       1.5s 
+   ✔ 9f7f59574f7d Pull complete                                     105.4s 
+   ✔ 88f4f8a6bc8d Pull complete                                       1.9s 
+   ✔ 45b24ec126f9 Pull complete                                     103.8s 
+[+] Running 3/3
+ ✔ Network docker-testapp_mongoDB-net  Created                        0.1s     --> network is created
+ ✔ Container mongo-container           Started                        2.4s 
+ ✔ Container mongo-express-container   Started                        1.9s
+
+ In docker desktop too, we see that all the containers are wrapped under a compose:
+ Refer --> ConceptsLearnedByHandsOn/Images/ComposeUI.png
+
+ C:\Users>docker network ls
+NETWORK ID     NAME                         DRIVER    SCOPE
+9100368c6be0   bridge                       bridge    local
+4d22f33b802b   docker-testapp_mongoDB-net   bridge    local
+16fb85c0b9da   host                         host      local
+a8b62d567fe9   mongoDB-net                  bridge    local   --> a network also got created
+7518ddf84cc2   none                         null      local
+
+We can see the created and running containers in a got
+C:\Users>docker ps
+CONTAINER ID   IMAGE           COMMAND                  CREATED          STATUS          PORTS                                             NAMES
+c5cb8b78262c   mongo-express   "/sbin/tini -- /dock…"   19 minutes ago   Up 18 minutes   0.0.0.0:8081->8081/tcp, [::]:8081->8081/tcp       mongo-express-container
+cad6beaa59f3   mongo           "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes   0.0.0.0:27017->27017/tcp, [::]:27017->27017/tcp   mongo-container
+
+ Hit: http://localhost:8081/ 
+ to again see our mongodb ui through mongodb-express
+
+ re-create the DB, collection and document again like before
+
+ hit http://localhost:5050/getUsers
+
+ if data is there, we are successfull.
+
+ we can also remove all the created containers in a go using docker compose command
+
+ Hit this command where our docker compose file is present
+ C:\REPOS\NodeAppForDocker\docker-testapp>docker compose -f mongodb.yaml down
+time="2025-12-15T21:58:12+05:30" level=warning msg="C:\\REPOS\\NodeAppForDocker\\docker-testapp
+\\mongodb.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to 
+avoid potential confusion"
+[+] Running 3/3
+ ✔ Container mongo-express-container   Removed                        0.4s 
+ ✔ Container mongo-container           Removed                        0.6s 
+ ✔ Network docker-testapp_mongoDB-net  Removed                        0.3s    --> our created network is also Removed
+
+ C:\Users>docker network ls
+NETWORK ID     NAME          DRIVER    SCOPE
+9100368c6be0   bridge        bridge    local
+16fb85c0b9da   host          host      local
+a8b62d567fe9   mongoDB-net   bridge    local
+7518ddf84cc2   none          null      local
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+C:\Users>
+
+
+
+
