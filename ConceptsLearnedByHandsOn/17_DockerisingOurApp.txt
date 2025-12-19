@@ -128,4 +128,163 @@ Env
                                     Let's dockerise our node app now
 --------------------------------------------------------------------------------------------------------
 
-Create Dockerfile in the app's root folder
+Create Dockerfile in the app's root folder (this is a file without extension)
+
+we start by defining a base image, our node image, node image itself has an OS as its base image, since
+images are created layer by layer
+
+FROM node
+
+Adding env variables
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=qwerty
+
+Docker uses the same Dockerfile syntax regardless of the host operating system.
+Hence, \ will work
+
+In our docker container, we will create a folder inside root folder (of the container)
+And we will copy all the code for node app to this folder 
+
+RUN mkdir -p DOCKER-TESTAPP
+COPY . /DOCKER-TESTAPP      --> Copy everything in our app at DOCKER-TESTAPP folder to container's DOCKER-TESTAPP folder
+
+In CMD, we write all the commands in the form of an array
+CMD is that one command we want to run once our container is created
+
+CMD ["node", "/DOCKER-TESTAPP/server.js"]
+
+- In our original App, we were already in root folder, so we could run node server.js directly
+- But in our docker container, we will be in our root folder initially, we need to run server.js 
+  from our folder, hence this path /DOCKER-TESTAPP/server.js
+
+  Our Dockerfile now becomes:
+------------------------------------------------------------
+    FROM node
+
+    ENV MONGO_DB_USERNAME=admin \
+        MONGO_DB_PWD=qwerty
+
+    RUN mkdir -p DOCKER-TESTAPP
+
+    COPY . /DOCKER-TESTAPP
+
+    CMD ["node", "/DOCKER-TESTAPP/server.js"]
+------------------------------------------------------------
+
+Now, to build image from this dockerfile, we run: docker build -t <image_name_we_want_to_give>:1.0 .
+
+-t --> tag
+tag --> 1.0 (after colon)
+. --> directory
+
+run this command in the directory having Dockerfile (root of the app)
+
+C:\REPOS\NodeAppForDocker\docker-testapp>docker build -t dockerAppImage:1.0 .
+[+] Building 0.0s (0/0)  docker:desktop-linu
+ERROR: failed to build: invalid tag "dockerAppImage:1.0": repository name must be lowercase
+
+KEPT THE ABOVE LOGS TO REMEMBER that lowercase name is a must
+
+C:\REPOS\NodeAppForDocker\docker-testapp>docker build -t docker_app_image:1.0 .
+[+] Building 51.7s (9/9) FINISHED docker:des
+ => [internal] load build definition   0.1s
+ => => transferring dockerfile: 208B   0.1s
+ => [internal] load metadata for dock  6.8s
+ => [auth] library/node:pull token fo  0.0s
+ => [internal] load .dockerignore      0.1s
+ => => transferring context: 2B        0.0s
+ => [1/3] FROM docker.io/library/nod  40.3s
+ => => resolve docker.io/library/node  0.1s 
+ => => sha256:19b6910 3.32kB / 3.32kB  0.7s 
+ => => sha256:c2608828077 447B / 447B  1.1s 
+ => => sha256:ac690f9 1.25MB / 1.25MB  2.2s
+ => => sha256:430b 56.16MB / 56.16MB  23.0s
+ => => sha256:e8 211.46MB / 211.46MB  33.1s 
+ => => sha256:c237 64.40MB / 64.40MB  17.7s 
+ => => sha256:6ae86 24.03MB / 24.03MB  8.3s
+ => => sha256:c844 48.48MB / 48.48MB  12.5s
+ => => extracting sha256:c8443a297fa4  1.7s
+ => => extracting sha256:6ae8659f7a8d  0.5s 
+ => => extracting sha256:c237534654fe  2.2s 
+ => => extracting sha256:e8d2a98f6bdf  4.3s 
+ => => extracting sha256:19b6910fae6e  0.0s 
+ => => extracting sha256:430bffa30d59  1.7s 
+ => => extracting sha256:ac690f9fa3aa  0.1s 
+ => => extracting sha256:c2608828077c  0.0s 
+ => [internal] load build context     16.3s 
+ => => transferring context: 12.24MB  16.2s 
+ => [2/3] RUN mkdir -p DOCKER-TESTAPP  2.9s 
+ => [3/3] COPY . /DOCKER-TESTAPP       0.2s 
+ => exporting to image                 1.1s 
+ => => exporting layers                0.6s 
+ => => exporting manifest sha256:1873  0.0s 
+ => => exporting config sha256:e762ff  0.0s 
+ => => exporting attestation manifest  0.0s 
+ => => exporting manifest list sha256  0.0s 
+ => => naming to docker.io/library/do  0.0s 
+ => => unpacking to docker.io/library  0.3s 
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/dinfjn4f0650xxvqwmq8cdfdi
+
+To verify image we created
+
+C:\Users>docker images
+                                                                                                                                                                                               i Info →   U  In Use
+IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+docker_app_image:1.0   e1d700d9ec5a       1.64GB          410MB        --> IMAGE
+mongo-express:latest   1b23d7976f02        286MB         58.9MB
+mongo:latest           bf5995bcccb6       1.24GB          324MB
+
+Running the container = running our app. Our app is running on port 5050
+
+C:\Users>docker run -it docker_app_image:1.0
+Server running on port 5050
+
+We can also see our created directory using ls command by running container in interactive mode
+
+C:\Users>docker run -it docker_app_image:1.0 bash
+root@fab73fcf68f7:/# ls
+DOCKER-TESTAPP  boot  etc   lib    media  opt   root  sbin  sys  usr
+bin             dev   home  lib64  mnt    proc  run   srv   tmp  var
+
+We can also see our copied folders from host machine inside our director in the container
+
+C:\Users>docker run -it docker_app_image:1.0 bash
+root@1f6e388a83a9:/# ls
+DOCKER-TESTAPP  boot  etc   lib    media  opt   root  sbin  sys  usr
+bin             dev   home  lib64  mnt    proc  run   srv   tmp  var
+root@1f6e388a83a9:/# cd DOCKER-TESTAPP
+root@1f6e388a83a9:/DOCKER-TESTAPP# ls
+Dockerfile  README.md  mongodb.yaml  node_modules  package-lock.json  package.json  public  server.js
+root@1f6e388a83a9:/DOCKER-TESTAPP#
+
+we have unnecessarily copied whole node modules, we can skip this copy and install node modules directly inside container
+
+----------------------------------------------
+FROM node
+
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=qwerty
+
+RUN mkdir -p DOCKER-TESTAPP
+
+COPY . /DOCKER-TESTAPP
+
+RUN npm install                 --> We would need to add this command to install node modules inside container
+
+CMD ["node", "/DOCKER-TESTAPP/server.js"]
+----------------------------------------------
+
+C:\Users>docker images
+                                                                                                  i Info →   U  In Use
+IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+docker_app_image:1.0   e1d700d9ec5a       1.64GB          410MB    U
+mongo-express:latest   1b23d7976f02        286MB         58.9MB
+mongo:latest           bf5995bcccb6       1.24GB          324MB
+
+We have 3 images now to run a single app,
+app image
+mongo DB
+mongo express
+
+we can integrate them together using docker compose and run these three together as a single application.
