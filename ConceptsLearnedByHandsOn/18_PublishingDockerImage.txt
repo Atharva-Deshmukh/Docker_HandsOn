@@ -1,0 +1,52 @@
+Go to docker hub >> sign in >> profile >> repository >> create repository
+
+By default, the repository is assigned a name, build image with the SAME NAME and then push
+
+C:\REPOS\NodeAppForDocker\docker-testapp>docker build -t devvrath/test-repo .  
+[+] Building 4.5s (9/9) FINISHED docker:desk
+ => [internal] load build definition   0.1s
+ => => transferring dockerfile: 208B   0.0s
+ => [internal] load metadata for dock  3.4s
+ => [auth] library/node:pull token fo  0.0s
+ => [internal] load .dockerignore      0.0s
+ => => transferring context: 2B        0.0s
+ => [1/3] FROM docker.io/library/node  0.0s
+ => => resolve docker.io/library/node  0.0s
+ => [internal] load build context      0.7s
+ => => transferring context: 87.93kB   0.7s
+ => CACHED [2/3] RUN mkdir -p DOCKER-  0.0s
+ => CACHED [3/3] COPY . /DOCKER-TESTA  0.0s
+ => exporting to image                 0.2s
+ => => exporting layers                0.0s
+ => => exporting manifest sha256:1873  0.0s
+ => => exporting config sha256:e762ff  0.0s 
+ => => exporting attestation manifest  0.0s 
+ => => exporting manifest list sha256  0.0s
+ => => naming to docker.io/devvrath/t  0.0s 
+ => => unpacking to docker.io/devvrat  0.0s 
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/wi2lai31scu5xdmp1p5fmltfw
+
+C:\REPOS\NodeAppForDocker\docker-testapp>doc
+ker push devvrath/test-repo
+Using default tag: latest
+The push refers to repository [docker.io/devvrath/test-repo]
+c8443a297fa4: Pushed
+6ae8659f7a8d: Pushed
+c2608828077c: Pushed
+430bffa30d59: Pushed
+ac690f9fa3aa: Pushed
+66334076add1: Pushed
+e8d2a98f6bdf: Pushed
+c237534654fe: Pushed
+19b6910fae6e: Pushed
+beea99ff0264: Pushed
+74a24857cc01: Pushed
+latest: digest: sha256:<SHA> size: 856
+
+Under tags section, we now have pull command generated for our image also:
+docker pull devvrath/test-repo:latest
+
+SEE --> ConceptsLearnedByHandsOn/Images/DOCKER_HUB_IMAGE.png
+
+In real life projects and many open source projects, the full code is shared using the docker images only
