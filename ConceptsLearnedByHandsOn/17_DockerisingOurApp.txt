@@ -1,0 +1,131 @@
+When we say we “dockerise our app”, we mean:
+Packaging the application and everything it needs to run into a Docker container, 
+so it runs the same way everywhere.
+
+We convert 
+
+Application --> Image --> Container --> This container is deployed and shared
+In real world, this container is created via Jenkins or automated CI CD
+
+Earlier Docker-compose.yml file vs dockerfile
+
+                                                    Dockerfile
+                                                    ----------
+
+    Describes how to build one image
+
+    Contains:
+        Base image
+        Dependencies
+        Build steps
+        Start command
+
+    Example:
+        FROM node:18
+        WORKDIR /app
+        COPY package*.json .
+        RUN npm install
+        COPY . .
+        CMD ["npm", "start"]
+
+                                                Docker compose
+                                                --------------
+
+    Uses a docker-compose.yml file (this is the YAML you’re thinking of)
+    Describes how to run multiple containers together
+
+    Handles:
+
+    Services (app, database, redis, etc.)
+        Ports
+        Volumes
+        Environment variables
+        Networks
+
+    Example:
+
+    version: "3.9"
+
+    services:
+    web:
+        build: .
+        ports:
+        - "3000:3000"
+        depends_on:
+        - db
+
+    db:
+        image: postgres:15
+        environment:
+        POSTGRES_PASSWORD: example
+
+Dockerfile → instructions to build a Docker image
+docker-compose.yml → instructions to run one or more containers
+
+
+                                        TYPICAL PROJECT STRUCTURE
+                                        ------------------------
+
+my-app/
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+└── src/
+
+Notice:
+    build: . tells Compose: use the Dockerfile in this directory
+    Or you can skip Dockerfile and use a prebuilt image: image: node:18
+
+                                        When you might not “see” a Dockerfile
+                                        -------------------------------------
+
+If your service uses only prebuilt images (e.g., postgres, redis)
+Then Compose just references: image: postgres:15
+
+But for your own app, you almost always have:
+    A Dockerfile
+    And docker-compose.yml that points to it
+
+
+                                           Instructions in a Dockerfile
+                                           ----------------------------
+
+FROM <image> 
+    - Defines a base for your image.
+    - Its the starting image your Docker image is built from — it provides the OS and/or runtime environment 
+      your app needs.
+    - Base images are always OS-based, even when you say FROM node.
+    - You are actually getting:
+        ✅ A Linux OS (Debian by default)
+        ✅ Node.js installed
+        ✅ npm / core tooling
+
+WORKDIR <directory>	
+    - Sets the working directory for any RUN, CMD, ENTRYPOINT, COPY, and ADD instructions that follow it 
+      in the Dockerfile. All these commands execute here.
+
+COPY <src> <dest>
+    - used to copy data from host machine to our image by giving their paths
+    - Copies new files or directories from <src> and adds them to the filesystem of the container at the path <dest>.
+
+RUN <command>	
+    - Executes any commands in a new layer on top of the current image and commits the result. 
+    - RUN also has a shell form for running commands.
+    - We can have multiple RUN commands in our dockerfile
+
+CMD <command>	
+    - This is basically that ONE INSTRUCTION that we want to execute when container is created from the image
+      and is started.
+    - Each Dockerfile only has one CMD, and only the last CMD instance is respected when multiple exist.
+
+EXPOSE
+    - We expose the port of an image
+
+Env
+    - To define our environment variables.
+
+--------------------------------------------------------------------------------------------------------
+                                    Let's dockerise our node app now
+--------------------------------------------------------------------------------------------------------
+
+Create Dockerfile in the app's root folder
