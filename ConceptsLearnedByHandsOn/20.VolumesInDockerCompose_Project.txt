@@ -1,0 +1,107 @@
+Lets try to use docker volumes in our node js project and make the data persist.
+Earlier, the mongodb data used to get erased after stopping the container.
+
+For this, in our exsting mongodb.yaml file, we will add volumes
+
+In our dockerhub mongodb image documentation, we have
+$ docker run --name some-mongo -v /my/own/datadir:/data/db -d mongo
+                                                    (This is the container path we need to use)
+
+Just add volume in docker compose yaml file
+
+------------------------------------------------------------------------------
+version: "3.8" # this is deprecated now, its optional
+
+services:
+  mongoDB:
+    image: mongo
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    volumes:
+      - C:/Users/AD/Desktop/dockerVolumeDataHost/Data:/data/db  --> ADDED
+    networks:
+      - mongoDB-net
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express-container
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_SERVER: mongoDB   # service name, not container name
+      ME_CONFIG_BASICAUTH: "false"
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongoDB:27017/
+    depends_on:
+      - mongoDB
+    networks:
+      - mongoDB-net
+
+networks:
+  mongoDB-net:
+------------------------------------------------------------------------------
+
+Now, hit C:\REPOS\NodeAppForDocker\docker-testapp>docker compose -f mongodb.yaml up
+
+It takes some time to start the connection since data is there now to load. There are some restarts.
+
+
+"msg":"Connection accepted","attr":{"remote":"172.19.0.3:50958","isLoadBalanced":false,"uuid":{"uuid":{"$uuid":"e6e56704-8a6d-46cd-a9eb-6eabc09cf84f"}},"connectionId":2,"connectionCount":2}}    
+mongo-container          | {"t":{"$date":"2025-12-22T17:20:21.564+00:00"},"s":"I",  "c":"NETWORK",  "id":51800,   "ctx":"conn2","msg":"client metadata","attr":{"remote":"172.19.0.3:50958","client":"conn2","negotiatedCompressors":[],"doc":{"driver":{"name":"nodejs","version":"4.13.0"},"os":{"type":"Linux","name":"linux","architecture":"x64","version":"6.6.87.2-microsoft-standard-WSL2"},"platform":"Node.js v18.20.3, LE (unified)|Node.js v18.20.3, LE (unified)"}}}
+mongo-container          | {"t":{"$date":"2025-12-22T17:20:21.622+00:00"},"s":"I",  "c":"ACCESS",   "id":6788604, "ctx":"conn2","msg":"Auth metrics report","attr":{"metric":"acquireUser","micros":0}}
+mongo-container          | {"t":{"$date":"2025-12-22T17:20:21.638+00:00"},"s":"I",  "c":"ACCESS",   "id":5286306, "ctx":"conn2","msg":"Successfully authenticated","attr":{"client":"172.19.0.3:50958","isSpeculative":true,"isClusterMember":false,"mechanism":"SCRAM-SHA-256","user":"admin","db":"admin","result":0,"metrics":{"conversation_duration":{"micros":16369,"summary":{"0":{"step":1,"step_total":2,"duration_micros":146},"1":{"step":2,"step_total":2,"duration_micros":57}}}},"doc":{"driver":{"name":"nodejs","version":"4.13.0"},"os":{"type":"Linux","name":"linux","architecture":"x64","version":"6.6.87.2-microsoft-standard-WSL2"},"platform":"Node.js v18.20.3, LE (unified)|Node.js v18.20.3, LE (unified)"},"extraInfo":{}}}
+mongo-container          | {"t":{"$date":"2025-12-22T17:20:21.642+00:00"},"s":"I",  "c":"NETWORK",  "id":6788700, "ctx":"conn2","msg":"Received first command on ingress connection since session start or auth handshake","attr":{"elapsedMillis":3}}
+mongo-express-container  | Mongo Express server listening at http://0.0.0.0:8081  --> THIS MEANS WE SUCCEEDED
+mongo-express-container  | Server is open to allow connections from anyone (0.0.0.0)                                              
+mongo-express-container  | Basic authentication is disabled. It is recommended to set the useBasicAuth to true in the config.js
+
+
+hit localhost:8081 --> create every element of new db (DB, Collection, Document)
+
+stop (CTRL + C) and delete the containers from docker desktop
+
+mongo-express-container  | GET /public/img/gears.gif 304 2.705 ms - -
+mongo-express-container  | GET /public/css/theme/rubyblue.css 304 1.504 ms - -
+mongo-express-container  | GET /public/vendor-93f5fc3ae20e0dfd68cb.min.js 304 3.986 ms - -                                                       
+mongo-express-container  | GET /public/img/mongo-express-logo.png 304 2.650 ms - -
+mongo-express-container  | GET /public/collection-70f10ba9e63af80d0f15.min.js 304 0.779 ms - -
+mongo-express-container  | GET /public/codemirror-c3ecf01fea09ef4fd0c5.min.js 304 0.748 ms - -                                                   
+Gracefully Stopping... press Ctrl+C again to force
+ Container mongo-express-container  Stopping
+ Container mongo-express-container  Stopped
+ Container mongo-container  Stopping                                                                                                             
+ Container mongo-container  Stopped
+
+                                      
+
+Now, again when we rerun, we can still see our old data due to volumes.
+SEE: ConceptsLearnedByHandsOn/Images/OldDataMongoDB.png
+
+
+To see all the volumes:
+
+C:\Users>docker volume ls
+DRIVER    VOLUME NAME
+local     1fb4de3779bb62c027a324511aedaf0683012ff23ccdf9b478abd1e27a4f34f9
+local     04ec34910a9c881b4df39fabeaad8203803ec943fc4b5cd2fac82d184737fe02
+local     6e78205f509741599041f8a1706ca7db171eaf4815bfc6ca086c0a0025851fc2
+local     9a0dd906d9e7308e77f019d9ab9b7540585c358ac1e938fadca090ca0a80c35e
+local     29f0ada7c9426a3aaa807dd0340e3b3eaee7e83def230289651705677bc5a462
+local     042dcce02b687779e82cc5b3220ee667764b039bc8991248a76ca2405d6432a2
+local     228eb67eb8b73ad21cafca48fbf39269ce40c37cf92572b67768cfcd24e9347d
+local     862a90216443ff127a8a56128303e6bf20983d2feb08f773018c6b47a14866cc
+local     881ddce749763e28d607304867216d31e1e26bb6f27a42e8172768cb1a4f33e0
+local     a1e3a145502e5c65046e0d8d2039df59b1d47bd1ae48810448307db10ec1e14a
+local     a9f72bf6e2199e3803d0839e82ef4f02b16979426ead82ee60a222c39a9f9cec
+local     afe1ce4862876b76fa371321000e4b1895e5afe316c0cd8e47635201161a8991
+local     b2fabb5d43d350a6207f0c750aa4c19bbdb7ba20637592d467f2a2d09f5349ad
+local     b782b9e6bd198f58d6532cd0975908315458e951847e3d4ff1a17dd737ede194
+local     cbf1089e960abb7785c528b4339c8bc76a1c443f8d06e1fce54d00ea02a74007
+local     dc1171f2b2c60368c0ae2450412eb85cbff6cda32e7d1d84fbdbc288e93106da
+
+OR see Volumes tab in docker desktop
