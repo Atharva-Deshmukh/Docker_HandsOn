@@ -1,0 +1,49 @@
+                                The problem Docker volumes solve
+                                -------------------------------
+
+Containers are temporary
+    A Docker container is like a running instance of an image.
+        You start a container → it runs
+        You stop or delete the container → everything inside it is gone
+
+Example:
+
+A database container stores data in /var/lib/mysql. You delete the container. The database data disappears
+This is by design. Containers are meant to be disposable.
+
+Prefer data to be stored in volumes than a container since volumes are sharable across the containers.
+
+                                What is a Docker volume?
+                                ------------------------
+
+A Docker volume is a persistent storage location that lives outside the container’s writable layer.
+Multiple containers can share it.
+
+                                Where do volumes live?
+                                ----------------------
+
+Docker stores volumes on the host machine, usually under: /var/lib/docker/volumes/
+
+But:
+    You don’t manage these directories manually
+    Docker manages them for you
+
+
+                        How volumes work (under the hood)
+                        ---------------------------------
+
+    You create a volume
+    Docker creates a directory on the host
+    You mount that directory into a container path
+    Container reads/writes files
+    Files actually live on the host
+
+                                    Host Machine
+                                    └── Docker Volume (folder)
+                                        └── data.db
+
+                                    Container
+                                    └── /data
+                                        └── data.db  (same file)
+
+----------------------------------------------------------------------------------------------
