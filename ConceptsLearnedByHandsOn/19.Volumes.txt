@@ -46,4 +46,64 @@ But:
                                     └── /data
                                         └── data.db  (same file)
 
+    Basically, container directory is mapped with host directory, and whenever we write something in container
+    directory, it also gets written in the host directory we mapped as volume.
+
 ----------------------------------------------------------------------------------------------
+
+Task:
+    We are going to create a container and run it in interactive mode to see the data.
+    We will create an ubuntu container and create directory test/data inside it.
+    We will create a /Desktop/data directory in our machine.
+    We will mount (attach/connect) both of these using command
+    docker run -it -v /users/desktop/data:test/data ubuntu 
+                      (abs host path)      (container path)
+
+C:\Users>docker run -it -v C:/Users/AD/Desktop/dockerVolumeDataHost/Data:/dockerVolumeDataContainer/Data ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+Digest: sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+Status: Downloaded newer image for ubuntu:latest
+root@b4846e37e667:/# ls
+bin  boot  dev  dockerVolumeDataContainer  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@b4846e37e667:/# cd dockerVolumeDataContainer
+root@b4846e37e667:/dockerVolumeDataContainer# ls
+Data                                                                  --> Data is empty initially
+root@b4846e37e667:/dockerVolumeDataContainer# cd Data
+root@b4846e37e667:/dockerVolumeDataContainer/Data# ls
+root@b4846e37e667:/dockerVolumeDataContainer/Data# touch index.html   --> Created two files in container
+root@b4846e37e667:/dockerVolumeDataContainer/Data# touch myServer.js
+root@b4846e37e667:/dockerVolumeDataContainer/Data#
+
+These two files are also created inside our host machine >> Desktop
+Refer: ConceptsLearnedByHandsOn/Images/DockerVolumeHost.png
+
+Now, lets stop and rerun this container and check if our data is persisted.
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES   --> No running container initially
+
+C:\Users>docker start nostalgic_rubin                                    --> start the container
+nostalgic_rubin
+ 
+C:\Users>docker exec -it nostalgic_rubin /bin/bash                       --> Enter in exec mode to interact
+root@b4846e37e667:/# ls
+bin  boot  dev  dockerVolumeDataContainer  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@b4846e37e667:/# cd dockerVolumeDataContainer
+root@b4846e37e667:/dockerVolumeDataContainer# ls
+Data
+root@b4846e37e667:/dockerVolumeDataContainer# cd Data
+root@b4846e37e667:/dockerVolumeDataContainer/Data# ls
+index.html  myServer.js                                                 --> Data persisted!
+root@b4846e37e667:/dockerVolumeDataContainer/Data#
+
+Even if we delete this container, data is preserved in the host machine and we can again map it.
+
+C:\Users>docker stop nostalgic_rubin
+nostalgic_rubin
+
+C:\Users>docker rm nostalgic_rubin
+nostalgic_rubin
+
+C:\Users>docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
