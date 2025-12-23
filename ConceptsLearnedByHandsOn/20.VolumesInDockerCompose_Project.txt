@@ -82,7 +82,7 @@ Gracefully Stopping... press Ctrl+C again to force
 Now, again when we rerun, we can still see our old data due to volumes.
 SEE: ConceptsLearnedByHandsOn/Images/OldDataMongoDB.png
 
-
+-----------------------------------------------------------------------------------
 To see all the volumes:
 
 C:\Users>docker volume ls
@@ -105,3 +105,95 @@ local     cbf1089e960abb7785c528b4339c8bc76a1c443f8d06e1fce54d00ea02a74007
 local     dc1171f2b2c60368c0ae2450412eb85cbff6cda32e7d1d84fbdbc288e93106da
 
 OR see Volumes tab in docker desktop
+-----------------------------------------------------------------------------------
+Named volumes: We can name the storage space created by docker in the host machine (volumes)
+
+docker volume create <name>
+
+C:\Users>docker volume create namedVolume
+namedVolume
+
+C:\Users>docker volume ls
+DRIVER    VOLUME NAME
+local     1fb4de3779bb62c027a324511aedaf0683012ff23ccdf9b478abd1e27a4f34f9
+local     04ec34910a9c881b4df39fabeaad8203803ec943fc4b5cd2fac82d184737fe02
+local     6e78205f509741599041f8a1706ca7db171eaf4815bfc6ca086c0a0025851fc2
+local     9a0dd906d9e7308e77f019d9ab9b7540585c358ac1e938fadca090ca0a80c35e
+local     29f0ada7c9426a3aaa807dd0340e3b3eaee7e83def230289651705677bc5a462
+local     042dcce02b687779e82cc5b3220ee667764b039bc8991248a76ca2405d6432a2
+local     228eb67eb8b73ad21cafca48fbf39269ce40c37cf92572b67768cfcd24e9347d
+local     862a90216443ff127a8a56128303e6bf20983d2feb08f773018c6b47a14866cc
+local     881ddce749763e28d607304867216d31e1e26bb6f27a42e8172768cb1a4f33e0
+local     a1e3a145502e5c65046e0d8d2039df59b1d47bd1ae48810448307db10ec1e14a
+local     a9f72bf6e2199e3803d0839e82ef4f02b16979426ead82ee60a222c39a9f9cec
+local     afe1ce4862876b76fa371321000e4b1895e5afe316c0cd8e47635201161a8991
+local     b2fabb5d43d350a6207f0c750aa4c19bbdb7ba20637592d467f2a2d09f5349ad
+local     b782b9e6bd198f58d6532cd0975908315458e951847e3d4ff1a17dd737ede194
+local     cbf1089e960abb7785c528b4339c8bc76a1c443f8d06e1fce54d00ea02a74007
+local     dc1171f2b2c60368c0ae2450412eb85cbff6cda32e7d1d84fbdbc288e93106da
+local     namedVolume   --> named volume
+
+To see our named volumes in host machine windows 11, use:
+\\wsl$\docker-desktop\mnt\docker-desktop-disk\data\docker\volumes
+
+Paste and hit enter in C drive >> top file path explorer
+REFER: ConceptsLearnedByHandsOn/Images/VolumeLocation.png differ
+-----------------------------------------------------------------------------------
+
+To remove named Volume:
+
+C:\Users>docker volume rm namedVolume
+namedVolume
+
+C:\Users>docker volume ls
+DRIVER    VOLUME NAME
+local     1fb4de3779bb62c027a324511aedaf0683012ff23ccdf9b478abd1e27a4f34f9
+local     04ec34910a9c881b4df39fabeaad8203803ec943fc4b5cd2fac82d184737fe02
+local     6e78205f509741599041f8a1706ca7db171eaf4815bfc6ca086c0a0025851fc2
+local     9a0dd906d9e7308e77f019d9ab9b7540585c358ac1e938fadca090ca0a80c35e
+local     29f0ada7c9426a3aaa807dd0340e3b3eaee7e83def230289651705677bc5a462
+local     042dcce02b687779e82cc5b3220ee667764b039bc8991248a76ca2405d6432a2
+local     228eb67eb8b73ad21cafca48fbf39269ce40c37cf92572b67768cfcd24e9347d
+local     862a90216443ff127a8a56128303e6bf20983d2feb08f773018c6b47a14866cc
+local     881ddce749763e28d607304867216d31e1e26bb6f27a42e8172768cb1a4f33e0
+local     a1e3a145502e5c65046e0d8d2039df59b1d47bd1ae48810448307db10ec1e14a
+local     a9f72bf6e2199e3803d0839e82ef4f02b16979426ead82ee60a222c39a9f9cec
+local     afe1ce4862876b76fa371321000e4b1895e5afe316c0cd8e47635201161a8991
+local     b2fabb5d43d350a6207f0c750aa4c19bbdb7ba20637592d467f2a2d09f5349ad
+local     b782b9e6bd198f58d6532cd0975908315458e951847e3d4ff1a17dd737ede194
+local     cbf1089e960abb7785c528b4339c8bc76a1c443f8d06e1fce54d00ea02a74007
+local     dc1171f2b2c60368c0ae2450412eb85cbff6cda32e7d1d84fbdbc288e93106da
+
+---------------------------------------------------------------------------------------------------------------
+
+                                How to connect Volume to Docker Containers?
+
+There are three ways to do this:
+
+                                 Way-1:  Bind mount method
+
+This we did earlier,
+
+Command: docker run -v host_directory:container_directory
+
+                                 Way-2: Anonymous volumes
+
+Command: docker run -v container_directory
+
+                                 Way-3 Named Volumes 
+
+Command: docker run -v volumeName:container_directory
+
+Differences:
+  Way-1: Host machine OS manages the volumes
+  Way-2 & Way-3: docker manages the volumes
+
+We can also use --mount flag, although both works same
+----------------------------------------------------------------------------------------------------------------- 
+
+Prune command: docker volume prune 
+
+- Deletes all unused volumes (volumes not referenced by any container)
+- Frees disk space
+- Does not remove volumes currently in use
+
